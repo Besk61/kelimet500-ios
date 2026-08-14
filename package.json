@@ -1,0 +1,45 @@
+{
+  "name": "kelimet500",
+  "private": true,
+  "version": "0.6.9",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/generate-link-associations.mjs && tsc -b && vite build",
+    "preview": "vite preview",
+    "mobile:android": "node scripts/mobile-init.mjs android",
+    "mobile:ios": "node scripts/mobile-init.mjs ios",
+    "mobile:sync": "node scripts/mobile-init.mjs all",
+    "native:patch": "node scripts/patch-native.mjs all",
+    "assets:generate": "node scripts/apply-branding.mjs all",
+    "branding:apply": "node scripts/apply-branding.mjs all",
+    "branding:android": "node scripts/apply-branding.mjs android",
+    "branding:ios": "node scripts/apply-branding.mjs ios",
+    "verify:ios": "node scripts/verify-mobile-env.mjs ios",
+    "verify:android": "node scripts/verify-mobile-env.mjs android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.4.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.1.0",
+    "typescript": "^5.9.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
+    "@capacitor-community/admob": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor-community/safe-area": "8.0.1",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/splash-screen": "^8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.2",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@capacitor/assets": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
