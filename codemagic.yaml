@@ -6,11 +6,13 @@ workflows:
     environment:
       android_signing:
         - kelimet500_keystore
-      groups:
-        - kelimet500_mobile
       vars:
         PACKAGE_NAME: "com.beskentertainment.kelimet500"
         VERSION_NAME: "1.0.0"
+        VITE_PUBLIC_APP_URL: "https://kelimet500.boraeskicioglu.com/"
+        VITE_ADMOB_TEST_MODE: "true"
+        ADMOB_ANDROID_APP_ID: ""
+        VITE_ADMOB_ANDROID_BANNER_ID: ""
       node: 22
       java: 21
     scripts:
@@ -40,14 +42,19 @@ workflows:
       app_store_connect: kelimet500_appstore
     environment:
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.beskentertainment.kelimet500
-      groups:
-        - kelimet500_mobile
+        provisioning_profiles:
+          - kelimet500_bora_appstore_profile
+        certificates:
+          - kelimet500_bora_distribution
       vars:
         BUNDLE_ID: "com.beskentertainment.kelimet500"
         XCODE_PROJECT: "App.xcodeproj"
         XCODE_SCHEME: "App"
+        VITE_PUBLIC_APP_URL: "https://kelimet500.boraeskicioglu.com/"
+        VITE_ADMOB_TEST_MODE: "true"
+        ADMOB_IOS_APP_ID: ""
+        VITE_ADMOB_IOS_BANNER_ID: ""
+        APPLE_TEAM_ID: ""
       node: 22
       xcode: 26.6
     scripts:
