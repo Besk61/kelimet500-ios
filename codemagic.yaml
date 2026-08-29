@@ -1,87 +1,78 @@
 workflows:
-  kelimet500-android:
-    name: Kelimet500 Android (AAB)
-    max_build_duration: 60
-    instance_type: linux_x2
-    environment:
-      android_signing:
-        - kelimet500_keystore
-      vars:
-        PACKAGE_NAME: "com.beskentertainment.kelimet500"
-        VERSION_NAME: "1.0.0"
-        VITE_PUBLIC_APP_URL: "https://kelimet500.boraeskicioglu.com/"
-        VITE_ADMOB_TEST_MODE: "true"
-        ADMOB_ANDROID_APP_ID: ""
-        VITE_ADMOB_ANDROID_BANNER_ID: ""
-      node: 22
-      java: 21
-    scripts:
-      - name: Install dependencies
-        script: npm install
-      - name: Verify Android environment
-        script: npm run verify:android
-      - name: Create/sync Android project
-        script: npm run mobile:android
-      - name: Configure Android SDK
-        script: echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Build signed Play Store AAB
-        script: |
-          cd android
-          ./gradlew bundleRelease \
-            -PversionCode=$BUILD_NUMBER \
-            -PversionName=$VERSION_NAME
-    artifacts:
-      - android/app/build/outputs/bundle/release/*.aab
-      - android/app/build/outputs/apk/**/*.apk
-
   kelimet500-ios:
     name: Kelimet500 iOS (TestFlight IPA)
     max_build_duration: 60
     instance_type: mac_mini_m2
+
     integrations:
       app_store_connect: kelimet500_appstore
+
     environment:
       ios_signing:
         provisioning_profiles:
           - kelimet500_bora_appstore_profile
         certificates:
           - kelimet500_bora_distribution
+
       vars:
         BUNDLE_ID: "com.beskentertainment.kelimet500"
         XCODE_PROJECT: "App.xcodeproj"
         XCODE_SCHEME: "App"
+
         VITE_PUBLIC_APP_URL: "https://kelimet500.boraeskicioglu.com/"
+
+        # Gerçek AdMob iOS uygulama ve banner kimliklerin.
+        ADMOB_IOS_APP_ID: "ca-app-pub-5362304445784648~6225471849"
+        VITE_ADMOB_IOS_BANNER_ID: "ca-app-pub-5362304445784648/4912390176"
+
+        # TestFlight sırasında Google test bannerı gösterir.
+        # App Store production build'inde bunu "false" yapacağız.
         VITE_ADMOB_TEST_MODE: "true"
-        ADMOB_IOS_APP_ID: ""
-        VITE_ADMOB_IOS_BANNER_ID: ""
-        APPLE_TEAM_ID: ""
+
+        # Bora Eskicioğlu Apple Developer Team ID
+        APPLE_TEAM_ID: "756W85DD2V"
+
       node: 22
       xcode: 26.6
+
     scripts:
       - name: Install dependencies
-        script: npm install
+        script: |
+          npm install
+
       - name: Verify iOS environment
-        script: npm run verify:ios
-      - name: Create/sync iOS project
-        script: npm run mobile:ios
-      - name: Apply App Store signing profiles
-        script: xcode-project use-profiles
-      - name: Set build number
+        script: |
+          npm run verify:ios
+
+      - name: Create and sync Capacitor iOS project
+        script: |
+          npm run mobile:ios
+
+      - name: Apply App Store signing profile
+        script: |
+          xcode-project use-profiles
+
+      - name: Set iOS build number
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           xcrun agvtool new-version -all "$BUILD_NUMBER"
+
       - name: Build signed IPA
         script: |
           xcode-project build-ipa \
             --project "$CM_BUILD_DIR/ios/App/$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
+
     artifacts:
-      - ios/App/build/ios/ipa/*.ipa
+      - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        # IPA App Store Connect'e yüklenir ve processing tamamlanınca
+        # TestFlight Builds altında görünür. İlk build'de otomatik beta
+        # review'a göndermiyoruz; internal test dağıtımını panelden açarız.
         submit_to_app_store: false
